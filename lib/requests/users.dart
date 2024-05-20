@@ -20,3 +20,17 @@ Future<List<User>> getUsers() async {
     return [];
   }
 }
+
+// Post a Single User
+Future<void> postUser(String name, String password) async {
+  await http.post(
+    url,
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'name': name,
+      'password': password,
+    }),
+  );
+}

@@ -1,7 +1,6 @@
 import 'package:body_fitness_frontend/assets/palette.dart';
 import 'package:body_fitness_frontend/models/user.dart';
-import 'package:body_fitness_frontend/pages/home/home_page.dart';
-import 'package:body_fitness_frontend/pages/register.dart';
+import 'package:body_fitness_frontend/pages/login.dart';
 import 'package:flutter/material.dart';
 import '../requests/users.dart';
 
@@ -19,23 +18,27 @@ User existUser(username) {
   return userFound;
 }
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class Register extends StatefulWidget {
+  const Register({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<Register> createState() => _RegisterState();
 }
 
-class _LoginState extends State<Login> {
+class _RegisterState extends State<Register> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordConfirmationController =
+      TextEditingController();
 
   bool isLoading = false;
   bool usernameError = false;
   bool passwordError = false;
+  bool passwordConfirmationError = false;
 
   String usernameErrorText = '';
   String passwordErrorText = '';
+  String passwordConfirmationErrorText = '';
 
   @override
   void initState() {
@@ -99,6 +102,14 @@ class _LoginState extends State<Login> {
                     ),
                     obscureText: true,
                   ),
+                  const SizedBox(height: 10.0),
+                  TextField(
+                    controller: passwordConfirmationController,
+                    decoration: InputDecoration(
+                        hintText: 'Confirmar Contraseña',
+                        errorText: passwordConfirmationErrorText,
+                        errorStyle: const TextStyle(color: Colors.red)),
+                  ),
                   const SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: () {
@@ -111,12 +122,11 @@ class _LoginState extends State<Login> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const Register()),
+                        MaterialPageRoute(builder: (context) => const Login()),
                       );
                     },
                     child: const Text(
-                      '¿No tienes una cuenta? Regístrate aquí',
+                      '¿Ya tienes Una Cuenta? Inicia Sesion',
                       style: TextStyle(color: Palette.primaryOrange),
                     ),
                   ),
@@ -126,33 +136,34 @@ class _LoginState extends State<Login> {
     );
   }
 
-  void _handleLogin() {
+  void _handleLogin() async {
     User user = existUser(usernameController.text);
     setState(() {
       usernameError = usernameController.text.isEmpty;
       passwordError = passwordController.text.isEmpty;
+      passwordConfirmationError = passwordConfirmationController.text.isEmpty;
 
       usernameErrorText = usernameError ? 'Ingrese un Nombre de Usuario' : '';
       passwordErrorText = passwordError ? 'Ingrese una Contraseña' : '';
+      passwordConfirmationErrorText =
+          passwordConfirmationError ? 'Confirme la Contraseña' : '';
     });
 
-    if (!usernameError && !passwordError) {
-      if (user.id != 0 &&
-          user.password.toLowerCase() ==
-              passwordController.text.toLowerCase()) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
+    if (!usernameError && !passwordError && !passwordConfirmationError) {
+      if (user.id != 0) {
+        usernameErrorText = 'El Usuario Ya Existe';
       } else {
-        setState(() {
-          usernameErrorText = user.id == 0 ? 'El Usuario no Existe' : '';
-          passwordErrorText = user.id != 0 &&
-                  user.password.toLowerCase() !=
-                      passwordController.text.toLowerCase()
-              ? 'Contraseña Incorrecta'
-              : '';
-        });
+        if (passwordController.text.toLowerCase() ==
+            passwordConfirmationController.text.toLowerCase()) {
+          postUser(usernameController.text, passwordController.text);
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const Login()),
+          );
+        } else {
+          passwordConfirmationErrorText = 'No Coinciden las Contraseñas';
+        }
       }
     }
   }
