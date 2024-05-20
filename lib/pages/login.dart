@@ -8,9 +8,6 @@ List<User> users = [];
 
 void fetchUsers() async {
   users = await getUsers();
-  for (var user in users) {
-    print(user.name);
-  }
 }
 
 User existUser(username) {
@@ -29,7 +26,15 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  bool _isLoading = false;
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  bool isLoading = false;
+  bool usernameError = false;
+  bool passwordError = false;
+
+  String usernameErrorText = '';
+  String passwordErrorText = '';
 
   @override
   void initState() {
@@ -39,18 +44,15 @@ class _LoginState extends State<Login> {
 
   void _loadUsers() async {
     setState(() {
-      _isLoading = true;
+      isLoading = true;
     });
 
     fetchUsers();
 
     setState(() {
-      _isLoading = false;
+      isLoading = false;
     });
   }
-
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -64,24 +66,35 @@ class _LoginState extends State<Login> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: _isLoading
+        child: isLoading
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  const SizedBox(height: 20.0),
+                  const Image(
+                    image: AssetImage('assets/images/body_fitness_logo.jpg'),
+                    width: double
+                        .infinity, // Ancho de la imagen que ocupa todo el ancho de la pantalla
+                    height: 150, // Alto deseado de la imagen
+                    fit: BoxFit
+                        .cover, // Ajuste de la imagen para cubrir el ancho especificado
+                  ),
+                  const SizedBox(height: 10.0),
                   TextField(
                     controller: usernameController,
-                    decoration: const InputDecoration(
-                      hintText: 'Nombre de Usuario',
-                    ),
+                    decoration: InputDecoration(
+                        hintText: 'Nombre de Usuario',
+                        errorText: usernameErrorText,
+                        errorStyle: const TextStyle(color: Colors.red)),
                   ),
                   const SizedBox(height: 10.0),
                   TextField(
                     controller: passwordController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Contraseña',
+                      errorText: passwordErrorText,
+                      errorStyle: const TextStyle(color: Colors.red),
                     ),
                     obscureText: true,
                   ),
@@ -90,11 +103,15 @@ class _LoginState extends State<Login> {
                     onPressed: () {
                       _handleLogin();
                     },
-                    child: const Text('Iniciar sesión'),
+                    child: const Text('Iniciar sesión',
+                        style: TextStyle(color: Palette.primaryOrange)),
                   ),
                   TextButton(
                     onPressed: () {},
-                    child: const Text('¿No tienes una cuenta? Regístrate aquí'),
+                    child: const Text(
+                      '¿No tienes una cuenta? Regístrate aquí',
+                      style: TextStyle(color: Palette.primaryOrange),
+                    ),
                   ),
                 ],
               ),
@@ -104,11 +121,32 @@ class _LoginState extends State<Login> {
 
   void _handleLogin() {
     User user = existUser(usernameController.text);
-    if (user.id != 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
+    setState(() {
+      usernameError = usernameController.text.isEmpty;
+      passwordError = passwordController.text.isEmpty;
+
+      usernameErrorText = usernameError ? 'Ingrese un Nombre de Usuario' : '';
+      passwordErrorText = passwordError ? 'Ingrese una Contraseña' : '';
+    });
+
+    if (!usernameError && !passwordError) {
+      if (user.id != 0 &&
+          user.password.toLowerCase() ==
+              passwordController.text.toLowerCase()) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        setState(() {
+          usernameErrorText = user.id == 0 ? 'El Usuario no Existe' : '';
+          passwordErrorText = user.id != 0 &&
+                  user.password.toLowerCase() !=
+                      passwordController.text.toLowerCase()
+              ? 'Contraseña Incorrecta'
+              : '';
+        });
+      }
     }
   }
 }
