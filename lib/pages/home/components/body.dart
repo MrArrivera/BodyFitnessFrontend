@@ -1,5 +1,9 @@
 import 'package:body_fitness_frontend/assets/constants.dart';
 import 'package:body_fitness_frontend/assets/palette.dart';
+import 'package:body_fitness_frontend/pages/details/detailed_screen.dart';
+import 'package:body_fitness_frontend/pages/home/components/header_with_search_box.dart';
+import 'package:body_fitness_frontend/pages/home/components/recommend_excercises_card.dart';
+import 'package:body_fitness_frontend/pages/home/components/recommended_title.dart';
 import 'package:flutter/material.dart';
 import 'package:body_fitness_frontend/models/user.dart';
 import 'dart:convert';
@@ -12,110 +16,155 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
 
-  final String serverUrl = 'http://10.0.2.2:3000';
-
-  Future<List<User>> fetchUsers() async {
-    final response = await http.get(Uri.parse('$serverUrl/users'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> userList = jsonDecode(response.body);
-      final List<User> users = userList.map((user) {
-        return User.fromJson(user);
-      }).toList();
-      return users;
-    } else {
-      throw Exception("Failed to fetch items");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Column(
-      children: [
-        SizedBox(
-          height: size.height * 0.2,
-          child: Stack(
-            children: [
-              Container(
-                height: size.height * 0.2 - 27,
-                decoration: const BoxDecoration(
-                  color: Palette.primaryOrange,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(36),
-                    bottomRight: Radius.circular(36),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: defaultPadding),
-                  padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-                  height: 54,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        offset: const Offset(0, 10),
-                        blurRadius: 50,
-                        color: Palette.primaryOrange.withOpacity(0.23),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: "Buscar...",
-                            hintStyle: TextStyle(
-                              color: Palette.primaryOrange.withOpacity(0.5),
-                            ),
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                          ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        children: [
+          HeaderWithSearchBox(size: size),
+          const RecommendedTitle(title: "Ejercicios recomendados",),
+          const SizedBox(height: 30,),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                RecommendExcercisesCard(
+                  image: "lib/assets/images/chest.png",
+                  title: "Pecho",
+                  description: "Ejercicios",
+                  press: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailsScreen(
+                          icon1: "lib/assets/icons/banca_inclinado.png",
+                          icon2: "lib/assets/icons/press_plano.png",
+                          icon3: "lib/assets/icons/flys_en_polea.png",
+                          image: "lib/assets/images/chest.png",
+                          title: "Pecho",
+                          description: "Pecho",
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: FutureBuilder<List<User>>(
-            future: fetchUsers(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasError) {
-                return Center(child: Text(snapshot.error.toString()));
-              } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                return ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    final user = snapshot.data![index];
-                    return ListTile(
-                      title: Text(user.name),
+                      )  
                     );
                   },
-                );
-              } else {
-                return const Center(
-                  child: Text("No users found"),
-                );
-              }
-            },
+                ),
+                RecommendExcercisesCard(
+                  image: "lib/assets/images/back.png",
+                  title: "Espalda",
+                  description: "Ejercicios",
+                  press: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailsScreen(
+                          icon1: "lib/assets/icons/pull_ups.png",
+                          icon2: "lib/assets/icons/dorsales.png",
+                          icon3: "lib/assets/icons/trapecios.png",
+                          image: "lib/assets/images/back.png",
+                          title: "Espalda",
+                          description: "Espalda",
+                        ),
+                      )  
+                    );
+                  },
+                ),
+                RecommendExcercisesCard(
+                  image: "lib/assets/images/arm.png",
+                  title: "Brazo",
+                  description: "Ejercicios",
+                  press: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailsScreen(
+                          icon1: "lib/assets/icons/laterales.png",
+                          icon2: "lib/assets/icons/curl_bicep.png",
+                          icon3: "lib/assets/icons/fondos.png",
+                          image: "lib/assets/images/arm.png",
+                          title: "Brazo",
+                          description: "Brazo",
+                        ),
+                      )  
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          const RecommendedTitle(title: "Dietas recomendadas",),
+          const SizedBox(height: 30,),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                RecommendExcercisesCard(
+                  image: "lib/assets/images/high_protein_meal.png",
+                  title: "Pollo con arroz",
+                  description: "Dietas",
+                  press: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailsScreen(
+                          icon1: "lib/assets/icons/banca_inclinado.png",
+                          icon2: "lib/assets/icons/press_plano.png",
+                          icon3: "lib/assets/icons/flys_en_polea.png",
+                          image: "lib/assets/images/chest.png",
+                          title: "Pecho",
+                          description: "Pecho",
+                        ),
+                      )  
+                    );
+                  },
+                ),
+                RecommendExcercisesCard(
+                  image: "lib/assets/images/high_protein_meal.png",
+                  title: "Pollo con arroz",
+                  description: "Dietas",
+                  press: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailsScreen(
+                          icon1: "lib/assets/icons/banca_inclinado.png",
+                          icon2: "lib/assets/icons/press_plano.png",
+                          icon3: "lib/assets/icons/flys_en_polea.png",
+                          image: "lib/assets/images/chest.png",
+                          title: "Pecho",
+                          description: "Pecho",
+                        ),
+                      )  
+                    );
+                  },
+                ),
+                RecommendExcercisesCard(
+                  image: "lib/assets/images/high_protein_meal.png",
+                  title: "Pollo con arroz",
+                  description: "Dietas",
+                  press: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailsScreen(
+                          icon1: "lib/assets/icons/banca_inclinado.png",
+                          icon2: "lib/assets/icons/press_plano.png",
+                          icon3: "lib/assets/icons/flys_en_polea.png",
+                          image: "lib/assets/images/chest.png",
+                          title: "Pecho",
+                          description: "Pecho",
+                        ),
+                      )  
+                    );
+                  },
+                ),
+              ]
+            ),
+          )
+          
+        ],
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:body_fitness_frontend/assets/palette.dart';
+import 'package:body_fitness_frontend/components/bottom_navigation_bar.dart';
 import 'package:body_fitness_frontend/pages/home/components/body.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +22,9 @@ class _HomePageState extends State<HomePage> {
       centerTitle: true,
     ),
     body: Body(),
+    bottomNavigationBar: const MyBottomNavigationBar(),
     backgroundColor: Palette.white,
   );
 }
 }
+
