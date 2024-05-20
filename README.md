@@ -29,4 +29,6 @@ DB_PORT = 5432
 
 PORT = 3000
 
+#Apuntar a esta URL para BD Local: http://10.0.2.2:3000/
+#Para iniciar el backend es npm run dev
 
