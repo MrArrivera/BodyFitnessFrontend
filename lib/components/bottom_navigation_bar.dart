@@ -28,11 +28,6 @@ class MyBottomNavigationBar extends StatelessWidget {
             icon: const Icon(Icons.home, size: 40,),
             onPressed: () {},
           ),
-          IconButton(
-            color: Palette.secondaryOrange,
-            icon: const Icon(Icons.account_circle, size: 40,),
-            onPressed: () {},
-          ),
         ],
       ),
     );
